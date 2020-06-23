@@ -18,5 +18,6 @@ module.exports = {
     "arrow-body-style": 'off',
     "prefer-promise-reject-errors": "off",
     "no-throw-literal": "off",
+    "max-len": "off",
   },
 };

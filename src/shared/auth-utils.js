@@ -1,17 +1,14 @@
-import * as jwt from 'jsonwebtoken';
-
 function isTokenValid(token) {
-  const decode = jwt.decode(token);
-  if (!decode) {
-    return null;
+  if (!("exp" in token)) {
+    return false;
   }
 
   const now = new Date().getTime();
-  if (decode.exp * 1000 <= now) {
-    return null;
+  if (token.exp * 1000 <= now) {
+    return false;
   }
 
-  return decode;
+  return true;
 }
 
 export {

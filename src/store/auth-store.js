@@ -1,3 +1,5 @@
+import * as jwt from 'jsonwebtoken';
+
 import { isTokenValid } from "@/shared/auth-utils";
 import { isString, isObject } from "../shared/is-data";
 
@@ -24,9 +26,9 @@ const actions = {
       return false;
     }
 
-    const decodedToken = isTokenValid(authToken);
+    const decodedToken = jwt.decode(authToken);
 
-    if (!decodedToken) {
+    if (!isTokenValid(decodedToken)) {
       return false;
     }
 
@@ -75,9 +77,12 @@ const actions = {
           throw "Invalid Response From Server";
         }
 
-        const decodedToken = isTokenValid(msg.token);
+        const decodedToken = jwt.decode(msg.token);
+        if (!decodedToken) {
+          throw "Invalid JWT Token";
+        }
 
-        if (decodedToken) {
+        if (isTokenValid(decodedToken)) {
           context.commit("saveLoginData", {
             userToken: msg.token,
             decodedUserToken: decodedToken,

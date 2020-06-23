@@ -39,7 +39,7 @@ export default {
         password: this.password,
       })
         .then(() => {
-          this.$router.push('Home');
+          this.$router.push('/');
         })
         .catch(() => {
           // Do something

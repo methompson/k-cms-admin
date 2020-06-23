@@ -2,6 +2,10 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 // import Home from '../views/Home.vue';
 
+import pageRoutes from "./page-routes";
+import userRoutes from "./user-routes";
+import blogRoutes from "./blog-routes";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -23,16 +27,9 @@ const routes = [
     name: "Login",
     component: () => import("../components/pages/Login.vue"),
   },
-  {
-    path: "/pages",
-    name: "Page List",
-    component: () => import("../components/pages/PageList.vue"),
-  },
-  {
-    path: "/page/:slug",
-    name: "Page List",
-    component: () => import("../components/pages/PageEditor.vue"),
-  },
+  ...pageRoutes,
+  ...userRoutes,
+  ...blogRoutes,
 ];
 
 const router = new VueRouter({

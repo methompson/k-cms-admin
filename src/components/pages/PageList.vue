@@ -1,21 +1,26 @@
 <template>
   <div>
+    <router-link to="/add-page">Add A New Page</router-link>
+
+    <h1>Page List</h1>
+    <div v-if="pageList.length === 0">
+      <div>No Pages</div>
+    </div>
+
     <div v-for="(page, index) in pageList" :key="page.id+index">
-      id: {{ page.id }}, name: {{ page.name }}
+      <PageListItem
+        :page="page"/>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
 import { isArray } from "@/shared/is-data";
+import PageListItem from "@/components/components/PageListItem.vue";
 
 export default {
-  computed: {
-    ...mapState([
-      "userToken",
-    ]),
+  components: {
+    PageListItem,
   },
   data() {
     return {
@@ -23,34 +28,41 @@ export default {
     };
   },
   mounted() {
-    if (!this.isUserLoggedIn()) {
-      console.log("Not Logged In");
-      this.$router.push("/login");
+    if (!this.checkLoginStatusAndRedirectOnFalse()) {
       return;
     }
 
-    const url = `${process.env.VUE_APP_API_URL}api/pages/all-pages`;
-    const requestHeaders = new Headers();
-    requestHeaders.append("authorization", `Bearer ${this.userToken}`);
-    fetch(url, {
-      headers: requestHeaders,
-    })
-      .then((res) => {
-        if (!res.ok) {
-          return res.json()
-            .then((msg) => {
-              throw msg;
-            });
-        }
+    this.getPageList();
+  },
+  methods: {
+    getPageList() {
+      const url = `${process.env.VUE_APP_API_URL}api/pages/all-pages`;
+      const requestHeaders = new Headers();
+      requestHeaders.append("authorization", `Bearer ${this.userToken}`);
 
-        return res.json();
+      fetch(url, {
+        headers: requestHeaders,
       })
-      .then((res) => {
-        if (isArray(res)) {
-          console.log(res);
-          this.pageList = res;
-        }
-      });
+        .then((res) => {
+          if (!res.ok) {
+            return res.json()
+              .then((msg) => {
+                throw msg;
+              });
+          }
+
+          return res.json();
+        })
+        .then((res) => {
+          if (isArray(res)) {
+            console.log(res);
+            this.pageList = res;
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
   },
 };
 </script>

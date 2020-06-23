@@ -14,8 +14,8 @@ export default {
     ]),
   },
   mounted() {
-    if (!this.userToken) {
-      this.$router.push('Login');
+    if (!this.isUserLoggedIn()) {
+      this.$router.push('login');
     }
   },
 };
