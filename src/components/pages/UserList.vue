@@ -3,23 +3,33 @@
     <router-link v-if="canAddUsers" to="/add-user">Add A New User</router-link>
 
     <h1>User List</h1>
-    <div v-if="userList.length === 0">
-      <div>No Users</div>
-    </div>
 
-    <div v-for="(user, index) in userList" :key="`${user.id}_${index}`">
-      {{ user.id }} {{ user.username }} {{ user.email }} {{ user.userType }} <router-link :to="`/edit-user/${user.id}`">Edit</router-link>
-    </div>
+    <LoadingContainer
+      :visible="finishedLoading">
+      <div v-if="userList.length === 0">
+        <div>No Users</div>
+      </div>
+
+      <div v-for="user in userList" :key="user.id">
+        {{ user.id }} {{ user.username }} {{ user.email }} {{ user.userType }} <router-link :to="`/edit-user/${user.id}`">Edit</router-link>
+      </div>
+    </LoadingContainer>
+
   </div>
 </template>
 
 <script>
 import { isArray } from "@/shared/is-data";
+import LoadingContainer from "@/components/components/LoadingContainer.vue";
 
 export default {
+  components: {
+    LoadingContainer,
+  },
   data() {
     return {
       userList: [],
+      finishedLoading: false,
     };
   },
   computed: {
@@ -68,6 +78,9 @@ export default {
         })
         .catch((err) => {
           console.log(err);
+        })
+        .finally(() => {
+          this.finishedLoading = true;
         });
     },
   },

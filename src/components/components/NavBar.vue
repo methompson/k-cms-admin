@@ -11,6 +11,8 @@
       <span class="link" @click="logout">Logout</span>
     </span>
 
+    <button type="button" @click="test">Add Message</button>
+
   </div>
 </template>
 
@@ -29,6 +31,17 @@ export default {
         })
         .catch(() => {
           // Do something
+        });
+    },
+    test() {
+      const msg = `Test ${Math.floor(Math.random() * 10000)}`;
+      this.$store.dispatch("addMessage", {
+        msg,
+        type: "info",
+        timeout: 800,
+      })
+        .catch((err) => {
+          console.log(err);
         });
     },
   },

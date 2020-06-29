@@ -3,28 +3,40 @@
     <router-link to="/add-page">Add A New Page</router-link>
 
     <h1>Page List</h1>
-    <div v-if="pageList.length === 0">
-      <div>No Pages</div>
+
+    <LoadingContainer
+      :visible="finishedLoading">
+      <div v-if="pageList.length === 0">
+        <div>No Pages</div>
+      </div>
+
+      <div v-for="page in pageList" :key="page.id">
+        <PageListItem
+          :page="page"/>
+      </div>
+    </LoadingContainer>
+
+    <div>
+
     </div>
 
-    <div v-for="(page, index) in pageList" :key="page.id+index">
-      <PageListItem
-        :page="page"/>
-    </div>
   </div>
 </template>
 
 <script>
 import { isArray } from "@/shared/is-data";
 import PageListItem from "@/components/components/PageListItem.vue";
+import LoadingContainer from "@/components/components/LoadingContainer.vue";
 
 export default {
   components: {
     PageListItem,
+    LoadingContainer,
   },
   data() {
     return {
       pageList: [],
+      finishedLoading: false,
     };
   },
   mounted() {
@@ -61,6 +73,9 @@ export default {
         })
         .catch((err) => {
           console.log(err);
+        })
+        .finally(() => {
+          this.finishedLoading = true;
         });
     },
   },

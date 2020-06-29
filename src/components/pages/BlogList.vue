@@ -4,22 +4,30 @@
 
     <h1>Blog List</h1>
 
-    <div v-if="blogList.length === 0">
-      <div>No Blog Posts</div>
-    </div>
+    <LoadingContainer :visible="finishedLoading">
+      <div v-if="blogList.length === 0">
+        <div>No Blog Posts</div>
+      </div>
 
-    <div v-else v-for="(post, index) in blogList" :key="post.id+index">
-    </div>
+      <div v-else v-for="post in blogList" :key="post.id"></div>
+    </LoadingContainer>
+
   </div>
 </template>
 
 <script>
 import { isArray } from "@/shared/is-data";
 
+import LoadingContainer from "@/components/components/LoadingContainer.vue";
+
 export default {
+  components: {
+    LoadingContainer,
+  },
   data() {
     return {
       blogList: [],
+      finishedLoading: false,
     };
   },
   mounted() {
@@ -56,6 +64,9 @@ export default {
         })
         .catch((err) => {
           console.log(err);
+        })
+        .finally(() => {
+          this.finishedLoading = true;
         });
     },
   },

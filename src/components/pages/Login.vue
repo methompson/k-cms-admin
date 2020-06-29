@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import { isObject } from "@/shared/is-data";
+
 export default {
   mounted() {
     if (this.isUserLoggedIn()) {
@@ -33,16 +35,25 @@ export default {
   },
   methods: {
     login() {
-      console.log("Log In?");
       return this.$store.dispatch("login", {
         username: this.username,
         password: this.password,
       })
         .then(() => {
           this.$router.push('/');
+          this.backgroundAuthCheck();
         })
-        .catch(() => {
-          // Do something
+        .catch((err) => {
+          let errorMsg = "Error Logging In";
+
+          if (isObject(err) && 'error' in err) {
+            errorMsg = `${errorMsg}: ${err.error}`;
+          }
+
+          this.$store.dispatch("addMessage", {
+            msg: errorMsg,
+            type: "error",
+          });
         });
     },
   },
