@@ -95,8 +95,16 @@ export default {
       console.log(exportedJSON);
     },
     importFromJSON() {
-      this.pageContainer = new PageContainer();
-      this.pageContainer.importFromJSON(this.jsonInput);
+      const newPageContainer = new PageContainer();
+
+      try {
+        newPageContainer.importFromJSON(this.jsonInput);
+      } catch (e) {
+        console.log("Error Parsing JSON");
+        return;
+      }
+
+      this.pageContainer = newPageContainer;
     },
   },
 };

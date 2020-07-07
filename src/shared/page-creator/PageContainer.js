@@ -80,12 +80,7 @@ class PageContainer {
 
   // eslint-disable-next-line class-methods-use-this
   importFromJSON(jsonInput) {
-    let content;
-    try {
-      content = JSON.parse(jsonInput);
-    } catch (e) {
-      console.log("Error Parsing JSON");
-    }
+    const content = JSON.parse(jsonInput);
 
     if (!isObject(content) || !isArray(content.pageSections)) {
       return;
