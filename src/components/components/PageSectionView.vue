@@ -166,6 +166,10 @@ export default {
       this.hoverProportion = posInEl / targetDimensions.height;
     },
     onDragLeave() {
+      if (!this.pageDragEvent) {
+        return;
+      }
+
       this.$store.dispatch("dragLeavingPageSection");
       this.hoverProportion = null;
     },
