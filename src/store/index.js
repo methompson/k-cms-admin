@@ -4,6 +4,7 @@ import Vuex from "vuex";
 import { getDefaultState } from "./default-state";
 import * as authStore from "./auth-store";
 import * as msgStore from "./msg-store";
+import * as dragStore from "./drag-section-store";
 
 Vue.use(Vuex);
 
@@ -14,10 +15,12 @@ export default new Vuex.Store({
   mutations: {
     ...authStore.mutations,
     ...msgStore.mutations,
+    ...dragStore.mutations,
   },
   actions: {
     ...authStore.actions,
     ...msgStore.actions,
+    ...dragStore.actions,
   },
   modules: {
   },

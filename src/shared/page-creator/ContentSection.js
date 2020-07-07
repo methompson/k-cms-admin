@@ -8,7 +8,10 @@ const widths = [
   { name: "1/4", val: 1 / 4, class: "width_1_4" },
   { name: "1/3", val: 1 / 3, class: "width_1_3" },
   { name: "1/2", val: 1 / 2, class: "width_1_2" },
-  { name: "1/1", val: 1, class: "width_1" },
+  { name: "2/3", val: 2 / 3, class: "width_2_3" },
+  { name: "3/4", val: 3 / 4, class: "width_3_4" },
+  { name: "5/6", val: 5 / 6, class: "width_5_6" },
+  { name: "1/1", val: 1, class: "width_1_1" },
 ];
 
 class ContentSection {
@@ -37,6 +40,23 @@ class ContentSection {
     }
 
     this.widthIndex -= 1;
+  }
+
+  setSize(sizeName) {
+    const widthIndex = widths.findIndex((el) => {
+      return el.name === sizeName;
+    });
+
+    if (widthIndex >= 0) {
+      this.widthIndex = widthIndex;
+    }
+  }
+
+  exportForJSON() {
+    return {
+      content: this.content,
+      width: this.width.name,
+    };
   }
 }
 
