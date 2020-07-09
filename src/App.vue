@@ -26,20 +26,9 @@ export default {
     NavBar,
     MessageContainer,
   },
-  mounted() {
-    // document.querySelector("body").addEventListener("mouseup", () => {
-    //   console.log("Up");
-    //   EventBus.$emit("bodyMouseUp");
-    // });
-    this.$store.dispatch("initFromLocalStorage")
-      .then((result) => {
-        // Check current page
-        if (result) {
-          // this.$router.push('Home');
-        }
-
-        this.backgroundAuthCheck();
-      });
+  created() {
+    console.log("App Created");
+    this.backgroundAuthCheck();
   },
   methods: {
     startingTransition() {

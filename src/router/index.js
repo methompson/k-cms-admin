@@ -1,6 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-// import Home from '../views/Home.vue';
+
+import store from "@/store/index";
+import { isString } from "@/shared/is-data";
+import { isTokenValid } from "@/shared/auth-utils";
 
 import pageRoutes from "./page-routes";
 import userRoutes from "./user-routes";
@@ -14,14 +17,6 @@ const routes = [
     name: 'Home',
     component: () => import("../components/pages/Home.vue"),
   },
-  // {
-  //   path: '/about',
-  //   name: 'About',
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () => import(/* webpackChunkName: "about" */ '../views/About.vue'),
-  // },
   {
     path: "/login",
     name: "Login",
@@ -36,6 +31,48 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  // We check for the authentication status of the user
+  let loggedIn;
+
+  if (!isString(store.state.userToken)
+    || !isTokenValid(store.state.decodedUserToken)
+  ) {
+    loggedIn = false;
+  } else {
+    loggedIn = true;
+  }
+
+  console.log("loggedIn", loggedIn);
+
+  // If the user is headed to Login and they're logged in, we'll redirect
+  // to the home page.
+  if (to.name === "Login" && loggedIn === true) {
+    next("/home");
+    return;
+  }
+
+  // If the user is not logged in and going somewhere other than Login, we'll
+  // redirect to the Login page
+  if (to.name !== "Login" && loggedIn === false) {
+    next("/login");
+    return;
+  }
+
+  let name = store.state.appName;
+
+  if ("meta" in to
+    && "title" in to.meta
+  ) {
+    name += ` - ${to.meta.title}`;
+  }
+
+  document.title = name;
+
+  // Just go to the next page in the route.
+  next();
 });
 
 export default router;

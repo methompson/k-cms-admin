@@ -1,6 +1,7 @@
 import { isObject, isString } from "@/shared/is-data";
 
 const defaultState = {
+  newContentDragEvent: null,
   contentDragEvent: null,
   pageDragEvent: null,
 };
@@ -74,6 +75,24 @@ const mutations = {
     state.pageDragEvent.targetSection = "";
   },
 
+  setNewContentDragData(state, data) {
+    if (!isObject(data)
+      || !isString(data.type)
+    ) {
+      return;
+    }
+
+    state.newContentDragEvent = {
+      type: data.type,
+      targetSection: "",
+      targetSectionParent: "",
+      targetPage: "",
+    };
+  },
+  removeNewContentDragData(state) {
+    state.newContentDragEvent = null;
+  },
+
 };
 
 const actions = {
@@ -139,6 +158,21 @@ const actions = {
   },
   dragLeavingPageSection(context) {
     context.commit("removePageSectionTarget");
+  },
+
+  startNewContentDrag(context, payload) {
+    if (!isObject(payload)
+      || !isString(payload.type)
+    ) {
+      return;
+    }
+
+    context.commit("setNewContentDragData", {
+      type: payload.type,
+    });
+  },
+  cancelNewContentDrag(context) {
+    context.commit("removeNewContentDragData");
   },
 };
 

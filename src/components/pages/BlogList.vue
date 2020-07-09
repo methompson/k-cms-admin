@@ -31,10 +31,6 @@ export default {
     };
   },
   mounted() {
-    if (!this.checkLoginStatusAndRedirectOnFalse()) {
-      return;
-    }
-
     this.getBlogList();
   },
   methods: {

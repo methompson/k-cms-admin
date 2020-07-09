@@ -1,10 +1,10 @@
 <template>
   <div id="nav">
 
-    <router-link to="/">Home</router-link> |
     <router-link v-if="showLogin" to="/login">Login</router-link>
 
     <span v-else>
+      <router-link to="/">Home</router-link> |
       <router-link to="/pages">Pages</router-link> |
       <router-link to="/blog">Blog</router-link> |
       <router-link to="/users">Users</router-link> |

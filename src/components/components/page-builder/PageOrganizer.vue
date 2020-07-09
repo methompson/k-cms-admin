@@ -7,8 +7,26 @@
       <button type="button" @click="importFromJSON">Import From JSON</button>
     </div>
 
+    <div>
+      Page Title
+      <input type="text">
+    </div>
+
+    <div>
+      Page Name
+      <input type="text">
+    </div>
+
+    <div>
+      Container Classes
+      <input type="text">
+    </div>
+
+    <ContentTray />
+
     <button type="button" @click="addNewPageSection">Add a New Page Section</button>
     <button type="button" @click="exportToJSON">Export to JSON</button>
+
     <div class="sectionContainer" v-if="pageContainer">
 
       <PageSectionView
@@ -23,10 +41,15 @@
 
 <script>
 import PageContainer from "@/shared/page-creator/PageContainer";
-import PageSectionView from "@/components/components/PageSectionView.vue";
+import PageSectionView from "@/components/components/page-builder/PageSectionView.vue";
+import ContentTray from "@/components/components/page-builder/ContentTray.vue";
 import EventBus from "@/shared/event-bus";
 
 export default {
+  components: {
+    PageSectionView,
+    ContentTray,
+  },
   data() {
     return {
       pageContainer: null,
@@ -42,9 +65,6 @@ export default {
   beforeDestroy() {
     EventBus.$off("contentSectionChange");
     EventBus.$off("pageSectionChange");
-  },
-  components: {
-    PageSectionView,
   },
   methods: {
     addNewPageSection() {

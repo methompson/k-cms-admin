@@ -1,10 +1,19 @@
-import { isObject, isArray } from "@/shared/is-data";
+import { isObject, isArray, isString } from "@/shared/is-data";
 
 import PageSection from "./PageSection";
 
 class PageContainer {
   constructor() {
     this.pageSections = [];
+    this.name = "";
+  }
+
+  changeName(name) {
+    if (!isString(name)) {
+      return;
+    }
+
+    this.name = name;
   }
 
   addNewPageSection() {

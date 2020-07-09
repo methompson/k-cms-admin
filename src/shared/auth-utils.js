@@ -1,4 +1,10 @@
+import { isObject } from "@/shared/is-data";
+
 function isTokenValid(token) {
+  if (!isObject(token)) {
+    return false;
+  }
+
   if (!("exp" in token)) {
     return false;
   }

@@ -14,7 +14,6 @@
       @dragstart="onDragStart">
 
       <div class="topBar">
-        <button type="button" @click="addNewContentSection">Add New Content</button>
         <span
           class="title"
           @mousedown="onMouseDown"
@@ -43,7 +42,7 @@
 import { mapState } from 'vuex';
 
 import PageSection from "@/shared/page-creator/PageSection";
-import ContentSectionView from "@/components/components/ContentSectionView.vue";
+import ContentSectionView from "@/components/components/page-builder/ContentSectionView.vue";
 import EventBus from "@/shared/event-bus";
 
 export default {
@@ -57,6 +56,7 @@ export default {
     ...mapState([
       "contentDragEvent",
       "pageDragEvent",
+      "newContentDragEvent",
     ]),
     coverClass() {
       if (this.pageDragEvent) {
@@ -90,9 +90,6 @@ export default {
     },
   },
   methods: {
-    addNewContentSection() {
-      this.section.addNewContentSection();
-    },
     deleteContentSection(ev) {
       this.section.deleteContentSection(ev.id);
     },
@@ -113,6 +110,10 @@ export default {
 
       if (this.pageDragEvent) {
         this.movePageSection();
+      }
+
+      if (this.newContentDragEvent) {
+        this.newContentDrop();
       }
 
       this.hoverProportion = null;
@@ -149,21 +150,9 @@ export default {
     onDragOver(ev) {
       ev.preventDefault();
 
-      if (!this.pageDragEvent) {
-        return;
+      if (this.pageDragEvent) {
+        this.pageDrag(ev);
       }
-
-      if (this.section.id === this.pageDragEvent.draggedSection) {
-        return;
-      }
-
-      this.$store.dispatch("draggingOverPageSection", {
-        id: this.section.id,
-      });
-
-      const targetDimensions = ev.target.getBoundingClientRect();
-      const posInEl = ev.clientY - targetDimensions.y;
-      this.hoverProportion = posInEl / targetDimensions.height;
     },
     onDragLeave() {
       if (!this.pageDragEvent) {
@@ -189,6 +178,33 @@ export default {
     onDragEnd() {
       this.draggable = false;
       this.$store.dispatch("stopPageSectionDrag");
+    },
+    newContentDrop() {
+      console.log(this.newContentDragEvent);
+      const { type } = this.newContentDragEvent;
+
+      if (type === "text") {
+        this.section.addNewTextContentSection();
+      }
+      if (type === "image") {
+        this.section.addNewImageContentSection();
+      }
+      if (type === "html") {
+        this.section.addNewHTMLContentSection();
+      }
+    },
+    pageDrag(ev) {
+      if (this.section.id === this.pageDragEvent.draggedSection) {
+        return;
+      }
+
+      this.$store.dispatch("draggingOverPageSection", {
+        id: this.section.id,
+      });
+
+      const targetDimensions = ev.target.getBoundingClientRect();
+      const posInEl = ev.clientY - targetDimensions.y;
+      this.hoverProportion = posInEl / targetDimensions.height;
     },
   },
 };

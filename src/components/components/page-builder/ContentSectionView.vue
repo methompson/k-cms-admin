@@ -16,6 +16,7 @@
 
         <span @click="shrinkSection" class="shrinkBtn">-</span>
         <span @click="growSection" class="growBtn">+</span>
+        <span @click="editSection" class="editBtn fas">&#xf044;</span>
 
         <span
           class="titleBar"
@@ -27,7 +28,8 @@
         <span @click="deleteSection" class="closeBtn fas">&#xf057;</span>
 
         <span class="content">
-          Section {{ this.contentSection.id }}
+          <!-- Section {{ this.contentSection.id }} -->
+          Type: {{ this.contentSection.type }}
         </span>
 
       </div>
@@ -121,6 +123,9 @@ export default {
     },
     shrinkSection() {
       this.contentSection.decreaseSize();
+    },
+    editSection() {
+      console.log("Edit the Section");
     },
     deleteSection() {
       this.$emit("deleteContentSection", {
@@ -248,12 +253,13 @@ export default {
   .container {
     display: grid;
     width: 100%;
-    grid-template-columns: [minus-button] 2em [plus-button] 2em [title-bar] auto [close-button] 2em [end];
+    grid-template-columns: [minus-button] 2em [plus-button] 2em [edit-button] 2em [title-bar] auto [close-button] 2em [end];
     grid-template-rows: [top-bar] auto [content] auto [end];
   }
 
   .growBtn,
   .shrinkBtn,
+  .editBtn,
   .titleBar,
   .closeBtn {
     background-color: teal;
@@ -270,24 +276,24 @@ export default {
 
   .shrinkBtn {
     grid-column-start: minus-button;
-    grid-column-end: plus-button;
   }
 
   .growBtn {
     grid-column-start: plus-button;
-    grid-column-end: title-bar;
+  }
+
+  .editBtn {
+    grid-column-start: edit-button;
   }
 
   .titleBar {
     width: 100%;
     background-color: red;
     grid-column-start: title-bar;
-    grid-column-end: close-button;
   }
 
   .closeBtn {
     grid-column-start: close-button;
-    grid-column-end: end;
   }
 
   .content {

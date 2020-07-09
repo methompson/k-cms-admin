@@ -20,6 +20,7 @@ const mutations = {
 
 const actions = {
   initFromLocalStorage(context) {
+    console.log("initFromLocalStorage");
     const authToken = localStorage.getItem("kcmsAuthToken");
 
     if (!authToken) {
@@ -36,6 +37,8 @@ const actions = {
       userToken: authToken,
       decodedUserToken: decodedToken,
     });
+
+    console.log("Committed LoginData");
 
     return true;
   },

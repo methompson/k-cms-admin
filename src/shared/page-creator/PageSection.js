@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import ContentSection from "./ContentSection";
+import HTMLContentSection from "./HTMLContentSection";
+import ImageContentSection from "./ImageContentSection";
+import TextContentSection from "./TextContentSection";
 
 class PageSection {
   constructor() {
@@ -11,6 +14,21 @@ class PageSection {
   addNewContentSection() {
     const c = new ContentSection();
     this.contentSections.push(c);
+  }
+
+  addNewTextContentSection() {
+    const t = new TextContentSection();
+    this.contentSections.push(t);
+  }
+
+  addNewImageContentSection() {
+    const t = new ImageContentSection();
+    this.contentSections.push(t);
+  }
+
+  addNewHTMLContentSection() {
+    const t = new HTMLContentSection();
+    this.contentSections.push(t);
   }
 
   addContentSection(section) {
@@ -80,8 +98,23 @@ class PageSection {
 
   importContentSections(sections) {
     sections.forEach((el) => {
-      const sec = new ContentSection();
+      console.log(el);
+      let sec;
+      if (el.type === "image") {
+        sec = new ImageContentSection();
+      }
+      if (el.type === "text") {
+        sec = new TextContentSection();
+      }
+      if (el.type === "html") {
+        sec = new HTMLContentSection();
+      }
+
       sec.setSize(el.width);
+      sec.content = el.content;
+      sec.contentMeta = el.contentMeta;
+      sec.setName(el.name);
+
       this.addContentSection(sec);
     });
   }

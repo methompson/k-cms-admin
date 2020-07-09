@@ -40,10 +40,6 @@ export default {
     };
   },
   mounted() {
-    if (!this.checkLoginStatusAndRedirectOnFalse()) {
-      return;
-    }
-
     this.getPageList();
   },
   methods: {

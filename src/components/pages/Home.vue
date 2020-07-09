@@ -5,20 +5,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
-export default {
-  computed: {
-    ...mapState([
-      "userToken",
-    ]),
-  },
-  mounted() {
-    if (!this.isUserLoggedIn()) {
-      this.$router.push('login');
-    }
-  },
-};
+export default {};
 </script>
 
 <style lang="scss" scoped>

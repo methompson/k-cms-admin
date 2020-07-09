@@ -10,7 +10,7 @@ Vue.use(Vuex);
 
 const theState = getDefaultState();
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   state: theState,
   mutations: {
     ...authStore.mutations,
@@ -25,3 +25,11 @@ export default new Vuex.Store({
   modules: {
   },
 });
+
+// We need to init the store from the LocalStorage immediate after the store is created
+// so that other portions of the app reliant on authentication information can get it
+// immediately rather than waiting for App.vue to run. This is especially important
+// for the router guard which will run before App. vue is created.
+store.dispatch("initFromLocalStorage");
+
+export default store;

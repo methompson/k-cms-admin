@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import PageOrganizer from "@/components/components/PageOrganizer.vue";
+import PageOrganizer from "@/components/components/page-builder/PageOrganizer.vue";
 
 export default {
   components: {

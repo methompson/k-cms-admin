@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { isString } from "@/shared/is-data";
+
 const widths = [
   { name: "1/16", val: 1 / 16, class: "width_1_16" },
   { name: "1/8", val: 1 / 8, class: "width_1_8" },
@@ -17,12 +19,24 @@ const widths = [
 class ContentSection {
   constructor() {
     this.content = "";
+    this.contentMeta = {};
+    this.type = "generic";
+
     this.id = uuidv4();
     this.widthIndex = widths.length - 1;
+    this.name = "";
   }
 
   get width() {
     return widths[this.widthIndex];
+  }
+
+  setName(name) {
+    if (!isString(name)) {
+      return;
+    }
+
+    this.name = name;
   }
 
   increaseSize() {
@@ -56,6 +70,9 @@ class ContentSection {
     return {
       content: this.content,
       width: this.width.name,
+      type: this.type,
+      name: this.name,
+      contentMeta: this.contentMeta,
     };
   }
 }

@@ -38,14 +38,6 @@ export default {
     },
   },
   mounted() {
-    if (!this.isUserLoggedIn()) {
-      console.log("Not Logged In");
-      this.$router.push("/login");
-      return;
-    }
-
-    console.log("Mounted");
-
     this.getUserList();
   },
   methods: {
