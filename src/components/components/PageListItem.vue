@@ -1,6 +1,6 @@
 <template>
   <div>
-    id: {{ page.id }}, name: {{ page.name }}, slug: {{ page.slug }}
+    id: {{ page.id }}, name: {{ page.name }}, slug: {{ page.slug }} <router-link :to="`/edit-page/${page.id}`">Edit</router-link>
   </div>
 </template>
 
@@ -18,7 +18,7 @@ export default {
           slug: "",
           enabled: "false",
           dateAdded: d,
-          datedModified: d,
+          dateModified: d,
         };
       },
     },

@@ -16,7 +16,7 @@
 
         <span @click="shrinkSection" class="shrinkBtn">-</span>
         <span @click="growSection" class="growBtn">+</span>
-        <span @click="editSection" class="editBtn fas">&#xf044;</span>
+        <span @click="showContentEditor" class="editBtn fas">&#xf044;</span>
 
         <span
           class="titleBar"
@@ -29,11 +29,32 @@
 
         <span class="content">
           <!-- Section {{ this.contentSection.id }} -->
-          Type: {{ this.contentSection.type }}
+          <div>
+            Type: {{ this.contentSection.type }}
+          </div>
+          <div>
+            Name: {{ this.contentSection.contentMeta.name }}
+          </div>
         </span>
 
       </div>
     </span>
+
+    <TextContentEditor
+      v-if="showEditor && contentSection.type === 'text'"
+      :contentSection="this.contentSection"
+      @saveData="saveContentData"
+      @closeEditor="closeEditor" />
+    <HTMLContentEditor
+      v-if="showEditor && contentSection.type === 'html'"
+      :contentSection="this.contentSection"
+      @saveData="saveContentData"
+      @closeEditor="closeEditor" />
+    <ImageContentEditor
+      v-if="showEditor && contentSection.type === 'image'"
+      :contentSection="this.contentSection"
+      @saveData="saveContentData"
+      @closeEditor="closeEditor" />
   </span>
 </template>
 
@@ -41,9 +62,19 @@
 import { mapState } from 'vuex';
 
 import ContentSection from "@/shared/page-creator/ContentSection";
+import { isObject } from "@/shared/is-data";
 import EventBus from "@/shared/event-bus";
 
+import TextContentEditor from "./TextContentEditor.vue";
+import HTMLContentEditor from "./HTMLContentEditor.vue";
+import ImageContentEditor from "./ImageContentEditor.vue";
+
 export default {
+  components: {
+    TextContentEditor,
+    HTMLContentEditor,
+    ImageContentEditor,
+  },
   props: {
     contentSection: {
       type: ContentSection,
@@ -67,11 +98,13 @@ export default {
       draggable: false,
       containerEl: null,
       hoverProportion: null,
+      showEditor: false,
     };
   },
   computed: {
     ...mapState([
       "contentDragEvent",
+      "newContentDragEvent",
     ]),
     coverClass() {
       let className = "cover";
@@ -80,7 +113,7 @@ export default {
         className += " hoverOver";
       }
 
-      if (!this.contentDragEvent) {
+      if (!this.contentDragEvent && !this.newContentDragEvent) {
         className += " disappeared";
       }
 
@@ -89,18 +122,22 @@ export default {
       return className;
     },
     isDraggedSection() {
-      if (!this.contentDragEvent) {
-        return false;
+      if (this.contentDragEvent) {
+        return this.contentSection.id === this.contentDragEvent.draggedSection;
       }
 
-      return this.contentSection.id === this.contentDragEvent.draggedSection;
+      return false;
     },
     isDraggedOver() {
-      if (!this.contentDragEvent) {
-        return false;
+      if (this.contentDragEvent) {
+        return this.contentSection.id === this.contentDragEvent.targetSection;
       }
 
-      return this.contentSection.id === this.contentDragEvent.targetSection;
+      if (this.newContentDragEvent) {
+        return this.contentSection.id === this.newContentDragEvent.targetSection;
+      }
+
+      return false;
     },
     selectionClass() {
       if (!this.isDraggedOver
@@ -123,9 +160,6 @@ export default {
     },
     shrinkSection() {
       this.contentSection.decreaseSize();
-    },
-    editSection() {
-      console.log("Edit the Section");
     },
     deleteSection() {
       this.$emit("deleteContentSection", {
@@ -155,10 +189,13 @@ export default {
     },
     onDragOver(ev) {
       ev.preventDefault();
-      if (!this.contentDragEvent) {
-        return;
+      if (this.contentDragEvent) {
+        this.contentDragEventHoverHandler(ev);
+      } else if (this.newContentDragEvent) {
+        this.newContentDragEventHoverHandler(ev);
       }
-
+    },
+    contentDragEventHoverHandler(ev) {
       if (this.contentDragEvent.draggedSection === this.contentDragEvent.targetSection) {
         return;
       }
@@ -168,6 +205,17 @@ export default {
         parentId: this.parentContainer,
       });
 
+      this.commonHoverHandler(ev);
+    },
+    newContentDragEventHoverHandler(ev) {
+      this.$store.dispatch("newContentDragOverContentSection", {
+        targetSection: this.contentSection.id,
+        targetSectionParent: this.parentContainer,
+      });
+
+      this.commonHoverHandler(ev);
+    },
+    commonHoverHandler(ev) {
       const { target } = ev;
       const targetDimensions = target.getBoundingClientRect();
       const posInEl = ev.clientX - targetDimensions.x;
@@ -180,26 +228,66 @@ export default {
      * record this content as being part of the drag and drop event.
      */
     onDragLeave() {
-      this.$store.dispatch("dragLeavingContent");
+      if (this.contentDragEvent) {
+        this.$store.dispatch("dragLeavingContent");
+      }
+
+      if (this.newContentDragEvent) {
+        this.$store.dispatch("newContentDragLeaveContentSection");
+      }
       this.hoverProportion = null;
     },
     onDrop(ev) {
       ev.preventDefault();
       ev.stopPropagation();
 
-      if (this.contentDragEvent
-        && this.contentDragEvent.draggedSection !== this.contentDragEvent.targetSection
-      ) {
-        EventBus.$emit("contentSectionChange", {
-          droppedContent: this.contentDragEvent.draggedSection,
-          droppedContentParentId: this.contentDragEvent.draggedParent,
-          droppedOverContent: this.contentDragEvent.targetSection,
-          droppedOverContentParentId: this.contentDragEvent.targetParent,
-          hoverProportion: this.hoverProportion,
-        });
+      if (this.contentDragEvent) {
+        this.contentDragEventHandler();
+      } else if (this.newContentDragEvent) {
+        this.newContentDragEventHandler();
       }
 
       this.onDragLeave();
+    },
+    contentDragEventHandler() {
+      if (this.contentDragEvent.draggedSection === this.contentDragEvent.targetSection) {
+        return;
+      }
+
+      EventBus.$emit("contentSectionChange", {
+        droppedContent: this.contentDragEvent.draggedSection,
+        droppedContentParentId: this.contentDragEvent.draggedParent,
+        droppedOverContent: this.contentDragEvent.targetSection,
+        droppedOverContentParentId: this.contentDragEvent.targetParent,
+        hoverProportion: this.hoverProportion,
+      });
+    },
+    newContentDragEventHandler() {
+      console.log("New Content Event");
+      EventBus.$emit("newContentSectionDropOnContent", {
+        type: this.newContentDragEvent.type,
+        dropTarget: this.contentSection.id,
+        dropTargetParent: this.parentContainer,
+        hoverProportion: this.hoverProportion,
+      });
+    },
+    closeEditor() {
+      this.showEditor = false;
+    },
+    showContentEditor() {
+      this.showEditor = true;
+    },
+    saveContentData(ev) {
+      console.log("Saving", ev);
+      if (!isObject(ev)) {
+        return;
+      }
+
+      this.contentSection.setName(ev.name);
+      this.contentSection.setClasses(ev.classes);
+      this.contentSection.setContent(ev.content);
+
+      this.closeEditor();
     },
   },
 };
@@ -215,8 +303,8 @@ export default {
   }
 
   .cover {
-    // background-color: lime;
-    background-color: transparent;
+    background-color: lime;
+    // background-color: transparent;
     top: 0;
     left: 0;
     z-index: 999;
@@ -227,8 +315,8 @@ export default {
   }
 
   .hoverOver {
-    background-color: transparent;
-    // background-color: forestgreen;
+    // background-color: transparent;
+    background-color: forestgreen;
   }
 
   .disappeared {

@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { isUndefined, isString } from "@/shared/is-data";
+
 import ContentSection from "./ContentSection";
 import HTMLContentSection from "./HTMLContentSection";
 import ImageContentSection from "./ImageContentSection";
@@ -8,27 +10,56 @@ import TextContentSection from "./TextContentSection";
 class PageSection {
   constructor() {
     this.id = uuidv4();
+    this.meta = {
+      name: "",
+      classes: "",
+    };
     this.contentSections = [];
   }
 
-  addNewContentSection() {
-    const c = new ContentSection();
-    this.contentSections.push(c);
+  setName(name) {
+    if (!isString(name)) {
+      return;
+    }
+
+    this.meta.name = name;
   }
 
-  addNewTextContentSection() {
-    const t = new TextContentSection();
-    this.contentSections.push(t);
+  setClasses(classes) {
+    if (!isString(classes)) {
+      return;
+    }
+
+    this.meta.classes = classes;
   }
 
-  addNewImageContentSection() {
-    const t = new ImageContentSection();
-    this.contentSections.push(t);
-  }
+  /**
+   *
+   * @param {String} type
+   * @param {String} dropTargetId
+   * @param {Boolean} after
+   */
+  addNewContentSection(type, dropTargetId, after) {
+    let content;
+    if (type === "text") {
+      content = new TextContentSection();
+    } else if (type === "image") {
+      content = new ImageContentSection();
+    } else if (type === "html") {
+      content = new HTMLContentSection();
+    }
 
-  addNewHTMLContentSection() {
-    const t = new HTMLContentSection();
-    this.contentSections.push(t);
+    if (isUndefined(content)) {
+      return;
+    }
+
+    if (isUndefined(dropTargetId)) {
+      this.contentSections.push(content);
+    } else if (after) {
+      this.insertContentSectionAfterId(dropTargetId, content);
+    } else {
+      this.insertContentSectionBeforeId(dropTargetId, content);
+    }
   }
 
   addContentSection(section) {
@@ -93,6 +124,7 @@ class PageSection {
 
     return {
       contentSections: exportedContentSections,
+      meta: this.meta,
     };
   }
 

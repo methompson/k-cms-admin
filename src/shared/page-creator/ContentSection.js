@@ -19,7 +19,10 @@ const widths = [
 class ContentSection {
   constructor() {
     this.content = "";
-    this.contentMeta = {};
+    this.contentMeta = {
+      name: "",
+      classes: "",
+    };
     this.type = "generic";
 
     this.id = uuidv4();
@@ -36,7 +39,23 @@ class ContentSection {
       return;
     }
 
-    this.name = name;
+    this.contentMeta.name = name;
+  }
+
+  setClasses(classes) {
+    if (!isString(classes)) {
+      return;
+    }
+
+    this.contentMeta.classes = classes;
+  }
+
+  setContent(content) {
+    if (!isString(content)) {
+      return;
+    }
+
+    this.content = content;
   }
 
   increaseSize() {
@@ -71,7 +90,6 @@ class ContentSection {
       content: this.content,
       width: this.width.name,
       type: this.type,
-      name: this.name,
       contentMeta: this.contentMeta,
     };
   }

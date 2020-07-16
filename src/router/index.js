@@ -45,8 +45,6 @@ router.beforeEach((to, from, next) => {
     loggedIn = true;
   }
 
-  console.log("loggedIn", loggedIn);
-
   // If the user is headed to Login and they're logged in, we'll redirect
   // to the home page.
   if (to.name === "Login" && loggedIn === true) {

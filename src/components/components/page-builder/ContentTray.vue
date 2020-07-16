@@ -41,7 +41,6 @@
 export default {
   methods: {
     onDragStart(ev, type) {
-      console.log("Drag Start", type);
       if (type === 'text') {
         this.createTextDragEvent();
       }
@@ -53,7 +52,6 @@ export default {
       }
     },
     onDragEnd() {
-      console.log("Drag End");
       this.$store.dispatch("cancelNewContentDrag");
     },
     createTextDragEvent() {

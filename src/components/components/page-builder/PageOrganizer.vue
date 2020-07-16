@@ -9,23 +9,27 @@
 
     <div>
       Page Title
-      <input type="text">
+      <input type="text" v-model="pageTitle">
     </div>
 
     <div>
       Page Name
-      <input type="text">
+      <input type="text" v-model="pageName">
+    </div>
+
+    <div>
+      Page Slug
+      <input type="text" v-model="pageSlug" @input="pageSlugInput">
     </div>
 
     <div>
       Container Classes
-      <input type="text">
+      <input type="text" v-model="containerClasses">
     </div>
 
     <ContentTray />
 
     <button type="button" @click="addNewPageSection">Add a New Page Section</button>
-    <button type="button" @click="exportToJSON">Export to JSON</button>
 
     <div class="sectionContainer" v-if="pageContainer">
 
@@ -36,50 +40,100 @@
         @deletePageSection="deletePageSection" />
 
     </div>
+
+    <button type="button" @click="saveToServer">Save</button>
+
+    <div v-if="errors.length > 0" class="errSection">
+      <div v-for="error in errors" :key="error">
+        {{ error }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import PageContainer from "@/shared/page-creator/PageContainer";
+import EventBus from "@/shared/event-bus";
+import { checkSlug, slugify } from "@/shared/slug";
+import { isObject, isUndefined } from "@/shared/is-data";
+
 import PageSectionView from "@/components/components/page-builder/PageSectionView.vue";
 import ContentTray from "@/components/components/page-builder/ContentTray.vue";
-import EventBus from "@/shared/event-bus";
 
 export default {
   components: {
     PageSectionView,
     ContentTray,
   },
+  props: {
+    savedContent: {
+      type: Object,
+      default() {
+        const d = new Date(0).toISOString();
+        return {
+          id: "",
+          slug: "",
+          name: "",
+          meta: {},
+          content: [],
+          enabled: true,
+          dateAdded: d,
+          dateModified: d,
+        };
+      },
+    },
+  },
   data() {
     return {
       pageContainer: null,
       draggedSection: "",
       jsonInput: "",
+      pageName: "",
+      pageTitle: "",
+      pageSlug: "",
+      containerClasses: "",
+      errors: [],
+      manuallyChanged: false,
     };
+  },
+  watch: {
+    pageName(newVal) {
+      if (!this.manuallyChanged) {
+        this.pageSlug = slugify(newVal);
+      }
+    },
+    pageSlug(newVal) {
+      if (newVal === "") {
+        this.manuallyChanged = false;
+      }
+    },
   },
   mounted() {
     this.pageContainer = new PageContainer();
     EventBus.$on("contentSectionChange", this.moveContent);
     EventBus.$on("pageSectionChange", this.movePageSection);
+    EventBus.$on("newContentSectionDropOnContent", this.addNewContent);
+
+    const d = new Date(0).toISOString();
+    if (this.savedContent.dateAdded !== d) {
+      this.importSavedData();
+    }
   },
   beforeDestroy() {
     EventBus.$off("contentSectionChange");
     EventBus.$off("pageSectionChange");
+    EventBus.$off("newContentSectionDropOnContent");
   },
   methods: {
     addNewPageSection() {
       this.pageContainer.addNewPageSection();
     },
     deletePageSection(ev) {
-      console.log(ev.id);
       this.pageContainer.deletePageSectionById(ev.id);
     },
     moveContent(ev) {
-      console.log("Moving Content", ev);
       const movedContentParent = this.pageContainer.getPageSectionById(ev.droppedContentParentId);
       const droppedOnContentParent = this.pageContainer.getPageSectionById(ev.droppedOverContentParentId);
-
-      console.log(movedContentParent, droppedOnContentParent);
 
       // Step 1, get a reference to the dropped content section.
       // Step 2, remove the dropped content section from the original page section
@@ -98,8 +152,12 @@ export default {
         droppedOnContentParent.insertContentSectionBeforeId(ev.droppedOverContent, content);
       }
     },
+    addNewContent(ev) {
+      const parentPage = this.pageContainer.getPageSectionById(ev.dropTargetParent);
+      const after = ev.hoverProportion > 0.5;
+      parentPage.addNewContentSection(ev.type, ev.dropTarget, after);
+    },
     movePageSection(ev) {
-      console.log("Moving Page Section", ev);
       const droppedSection = this.pageContainer.getPageSectionById(ev.droppedSection);
 
       this.pageContainer.deletePageSectionById(ev.droppedSection);
@@ -109,10 +167,6 @@ export default {
       } else if (ev.hoverProportion <= 0.5) {
         this.pageContainer.insertPageSectionBeforeId(ev.targetSection, droppedSection);
       }
-    },
-    exportToJSON() {
-      const exportedJSON = this.pageContainer.exportToJSON();
-      console.log(exportedJSON);
     },
     importFromJSON() {
       const newPageContainer = new PageContainer();
@@ -126,6 +180,67 @@ export default {
 
       this.pageContainer = newPageContainer;
     },
+    saveToServer() {
+      const exportedContent = this.pageContainer.exportToJSON();
+
+      this.errors = [];
+      const errors = [];
+
+      if (this.pageTitle.length === 0) {
+        errors.push("Page Title is Required");
+      }
+
+      if (this.pageName.length === 0) {
+        errors.push("Page Name is Required");
+      }
+
+      if (!checkSlug(this.pageSlug)) {
+        errors.push("Invalid Page Slug");
+      }
+
+      if (errors.length === 0) {
+        this.$emit("saveToServer", {
+          pageSlug: this.pageSlug,
+          pageTitle: this.pageTitle,
+          pageName: this.pageName,
+          containerClasses: this.containerClasses,
+          pageContent: exportedContent,
+        });
+
+        return;
+      }
+
+      this.errors = errors;
+    },
+    pageSlugInput() {
+      this.manuallyChanged = true;
+    },
+    importSavedData() {
+      console.log("Importing Saved Data");
+
+      if (!isObject(this.savedContent)) {
+        return;
+      }
+
+      const sc = this.savedContent;
+
+      this.pageContainer.importSavedData(sc.content);
+      this.pageTitle = sc.title;
+      this.pageName = sc.name;
+      this.pageSlug = sc.slug;
+
+      const { meta } = sc;
+
+      if (isObject(meta)) {
+        if (!isUndefined(meta.containerClasses)) {
+          this.containerClasses = meta.containerClasses;
+        }
+
+        if (!isUndefined(meta.title)) {
+          this.pageTitle = meta.title;
+        }
+      }
+    },
   },
 };
 </script>
@@ -134,5 +249,9 @@ export default {
   .sectionContainer {
     text-align: left;
     width: 100%;
+  }
+
+  .errSection {
+    color: red;
   }
 </style>

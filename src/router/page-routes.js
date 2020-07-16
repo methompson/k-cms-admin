@@ -15,6 +15,14 @@ const routes = [
       title: "Add A New Page",
     },
   },
+  {
+    path: "/edit-page/:pageId",
+    name: "Edit A Page",
+    component: () => import("@/components/pages/EditPage.vue"),
+    meta: {
+      title: "Editing a Page",
+    },
+  },
   // {
   //   path: "/page/:slug",
   //   name: "Page List",

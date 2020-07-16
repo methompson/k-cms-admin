@@ -28,10 +28,10 @@ export default {
   },
   methods: {
     startingTransition() {
-      console.log("Started Container Transition");
+      // console.log("Started Container Transition");
     },
     finishedTransition() {
-      console.log("Finished Container Transition");
+      // console.log("Finished Container Transition");
     },
   },
 };

@@ -27,7 +27,6 @@ export default {
     MessageContainer,
   },
   created() {
-    console.log("App Created");
     this.backgroundAuthCheck();
   },
   methods: {

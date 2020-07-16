@@ -63,7 +63,7 @@ export default {
         })
         .then((res) => {
           if (isArray(res)) {
-            console.log(res);
+            // console.log(res);
             this.pageList = res;
           }
         })

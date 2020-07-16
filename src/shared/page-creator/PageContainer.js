@@ -78,29 +78,34 @@ class PageContainer {
       exportedPageSections.push(el.exportForJSON());
     });
 
-    const output = {
-      pageSections: exportedPageSections,
-    };
-
-    console.log(output);
-
-    return JSON.stringify(output);
+    return exportedPageSections;
   }
 
   // eslint-disable-next-line class-methods-use-this
   importFromJSON(jsonInput) {
     const content = JSON.parse(jsonInput);
 
-    if (!isObject(content) || !isArray(content.pageSections)) {
+    this.importSavedData(content);
+  }
+
+  importSavedData(content) {
+    if (!isArray(content)) {
       return;
     }
 
-    content.pageSections.forEach((el) => {
+    content.forEach((el) => {
       if (!isArray(el.contentSections)) {
         return;
       }
 
       const p = new PageSection();
+      console.log(el.meta);
+      if (isObject(el.meta)) {
+        p.meta = {
+          ...p.meta,
+          ...el.meta,
+        };
+      }
       p.importContentSections(el.contentSections);
 
       this.addPageSection(p);

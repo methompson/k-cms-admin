@@ -86,11 +86,25 @@ const mutations = {
       type: data.type,
       targetSection: "",
       targetSectionParent: "",
-      targetPage: "",
     };
   },
   removeNewContentDragData(state) {
     state.newContentDragEvent = null;
+  },
+  setNewContentTarget(state, data) {
+    if (!isObject(data)
+      || !isString(data.targetSection)
+      || !isString(data.targetSectionParent)
+    ) {
+      return;
+    }
+
+    state.newContentDragEvent.targetSection = data.targetSection;
+    state.newContentDragEvent.targetSectionParent = data.targetSectionParent;
+  },
+  removeNewContentTarget(state) {
+    state.newContentDragEvent.targetSection = "";
+    state.newContentDragEvent.targetSectionParent = "";
   },
 
 };
@@ -173,6 +187,23 @@ const actions = {
   },
   cancelNewContentDrag(context) {
     context.commit("removeNewContentDragData");
+  },
+
+  newContentDragOverContentSection(context, payload) {
+    if (!isObject(payload)
+      || !isString(payload.targetSection)
+      || !isString(payload.targetSectionParent)
+    ) {
+      return;
+    }
+
+    context.commit("setNewContentTarget", {
+      targetSection: payload.targetSection,
+      targetSectionParent: payload.targetSectionParent,
+    });
+  },
+  newContentDragLeaveContentSection(context) {
+    context.commit("removeNewContentTarget");
   },
 };
 

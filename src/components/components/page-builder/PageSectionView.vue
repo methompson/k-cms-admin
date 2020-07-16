@@ -14,14 +14,17 @@
       @dragstart="onDragStart">
 
       <div class="topBar">
+        <span @click="deletePageSection" class="delBtn fas">&#xf057;</span>
+        <span @click="showPageSectionEditor" class="editBtn fas">&#xf044;</span>
         <span
           class="title"
           @mousedown="onMouseDown"
           @mouseup="onMouseUp">
-          section {{ section.id }}
+          <span>Name: {{ section.meta.name }}</span>
         </span>
-        <span @click="deletePageSection" class="fas">&#xf057;</span>
       </div>
+
+      <div>id: {{ section.id }}</div>
 
       <div>
         <ContentSectionView
@@ -34,6 +37,12 @@
 
     </span>
 
+    <PageSectionEditor
+      v-if="showEditor"
+      :pageSection="section"
+      @saveData="savePageData"
+      @closeEditor="closeEditor" />
+
   </div>
 
 </template>
@@ -41,15 +50,20 @@
 <script>
 import { mapState } from 'vuex';
 
-import PageSection from "@/shared/page-creator/PageSection";
-import ContentSectionView from "@/components/components/page-builder/ContentSectionView.vue";
+import { isObject } from "@/shared/is-data";
 import EventBus from "@/shared/event-bus";
+import PageSection from "@/shared/page-creator/PageSection";
+
+import PageSectionEditor from "@/components/components/page-builder/PageSectionEditor.vue";
+import ContentSectionView from "@/components/components/page-builder/ContentSectionView.vue";
 
 export default {
   data() {
     return {
       draggable: false,
       hoverProportion: null,
+      newContentHover: false,
+      showEditor: false,
     };
   },
   computed: {
@@ -74,11 +88,16 @@ export default {
         return " selectionTop";
       }
 
+      if (this.newContentHover) {
+        return " sectionSelection";
+      }
+
       return "";
     },
   },
   components: {
     ContentSectionView,
+    PageSectionEditor,
   },
   props: {
     section: {
@@ -97,6 +116,23 @@ export default {
       this.$emit("deletePageSection", {
         id: this.section.id,
       });
+    },
+    showPageSectionEditor() {
+      this.showEditor = true;
+    },
+    closeEditor() {
+      console.log("Clsoing Editor");
+      this.showEditor = false;
+    },
+    savePageData(ev) {
+      if (!isObject(ev)) {
+        return;
+      }
+
+      this.section.setName(ev.name);
+      this.section.setClasses(ev.classes);
+
+      this.closeEditor();
     },
     onDrop(ev) {
       ev.preventDefault();
@@ -153,14 +189,20 @@ export default {
       if (this.pageDragEvent) {
         this.pageDrag(ev);
       }
+
+      if (this.newContentDragEvent) {
+        this.newContentHover = true;
+      }
     },
     onDragLeave() {
+      this.newContentHover = false;
+      this.hoverProportion = null;
+
       if (!this.pageDragEvent) {
         return;
       }
 
       this.$store.dispatch("dragLeavingPageSection");
-      this.hoverProportion = null;
     },
     onMouseDown() {
       // TODO listen for left mouse click only
@@ -183,15 +225,7 @@ export default {
       console.log(this.newContentDragEvent);
       const { type } = this.newContentDragEvent;
 
-      if (type === "text") {
-        this.section.addNewTextContentSection();
-      }
-      if (type === "image") {
-        this.section.addNewImageContentSection();
-      }
-      if (type === "html") {
-        this.section.addNewHTMLContentSection();
-      }
+      this.section.addNewContentSection(type);
     },
     pageDrag(ev) {
       if (this.section.id === this.pageDragEvent.draggedSection) {
@@ -219,6 +253,10 @@ export default {
     position: relative;
   }
 
+  .sectionSelection {
+    background-color: #ccc;
+  }
+
   .selectionTop {
     border-top: 2px solid red;
   }
@@ -236,6 +274,34 @@ export default {
     width: 100%;
     height: 100%;
     z-index: 99;
+  }
+
+  .topBar {
+    display: grid;
+    grid-template-columns: [edit-button] 2em [title-bar] auto [del-button] 2em [end];
+    grid-template-rows: [start] auto [end];
+    align-items: center;
+  }
+
+  .delBtn, .editBtn {
+    text-align: center;
+    width: 100%;
+  }
+
+  .delBtn {
+    background-color: teal;
+    grid-column-start: del-button;
+    grid-row-start: start;
+  }
+  .editBtn {
+    background-color: red;
+    grid-column-start: edit-button;
+    grid-row-start: start;
+  }
+  .title {
+    background-color: lime;
+    grid-column-start: title-bar;
+    grid-row-start: start;
   }
 
 </style>

@@ -19,5 +19,7 @@ module.exports = {
     "prefer-promise-reject-errors": "off",
     "no-throw-literal": "off",
     "max-len": "off",
+    "no-plusplus": "off",
+    "no-plusplus": "off",
   },
 };
