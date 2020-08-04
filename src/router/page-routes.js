@@ -20,14 +20,17 @@ const routes = [
     name: "Edit A Page",
     component: () => import("@/components/pages/EditPage.vue"),
     meta: {
-      title: "Editing a Page",
+      title: "Editing A Page",
     },
   },
-  // {
-  //   path: "/page/:slug",
-  //   name: "Page List",
-  //   component: () => import("@/components/pages/PageEditor.vue"),
-  // },
+  {
+    path: "/page-preview/:pageId",
+    name: "Page Preview",
+    component: () => import("@/components/pages/Preview.vue"),
+    meta: {
+      title: "Preview Your Page",
+    },
+  },
 ];
 
 export default routes;

@@ -2,7 +2,7 @@
   <div>
     <h1>Add a New Page</h1>
 
-    <PageOrganizer
+    <PageBuilder
       @saveToServer="saveToServer"/>
   </div>
 </template>
@@ -10,11 +10,11 @@
 <script>
 import { isObject, isUndefined } from "@/shared/is-data";
 
-import PageOrganizer from "@/components/components/page-builder/PageOrganizer.vue";
+import PageBuilder from "@/components/components/page-builder/PageBuilder.vue";
 
 export default {
   components: {
-    PageOrganizer,
+    PageBuilder,
   },
   methods: {
     saveToServer(ev) {
@@ -61,12 +61,25 @@ export default {
           if (isObject(res)
             && !isUndefined(res.id)
           ) {
+            // Show Success Message
+            this.$store.dispatch("addMessage", {
+              msg: "Successfully Added New Page",
+              type: "info",
+              timeout: 15,
+            });
             // route to editPage
             this.$router.push(`/edit-page/${res.id}`);
+          } else {
+            throw "Error adding new page to the server";
           }
         })
         .catch((err) => {
           console.log(err);
+          this.$store.dispatch("addMessage", {
+            msg: err,
+            type: "error",
+            timeout: 15,
+          });
         });
     },
   },

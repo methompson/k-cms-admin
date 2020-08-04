@@ -1,11 +1,11 @@
 <template>
   <div class="organizerContainer">
-    <div>
+    <!-- <div>
       <textarea v-model="jsonInput" rows="5" cols="33"></textarea>
     </div>
     <div>
       <button type="button" @click="importFromJSON">Import From JSON</button>
-    </div>
+    </div> -->
 
     <div>
       Page Title
@@ -42,23 +42,27 @@
     </div>
 
     <button type="button" @click="saveToServer">Save</button>
+    <button type="button" @click="showPreview">Show Preview</button>
 
     <div v-if="errors.length > 0" class="errSection">
       <div v-for="error in errors" :key="error">
         {{ error }}
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
+import { v4 as uuidv4 } from 'uuid';
+
 import PageContainer from "@/shared/page-creator/PageContainer";
 import EventBus from "@/shared/event-bus";
 import { checkSlug, slugify } from "@/shared/slug";
 import { isObject, isUndefined } from "@/shared/is-data";
 
-import PageSectionView from "@/components/components/page-builder/PageSectionView.vue";
-import ContentTray from "@/components/components/page-builder/ContentTray.vue";
+import PageSectionView from "./PageSectionView.vue";
+import ContentTray from "./ContentTray.vue";
 
 export default {
   components: {
@@ -94,6 +98,9 @@ export default {
       containerClasses: "",
       errors: [],
       manuallyChanged: false,
+      previewOpen: false,
+      exportedPageData: null,
+      localStoreName: "",
     };
   },
   watch: {
@@ -113,23 +120,34 @@ export default {
     EventBus.$on("contentSectionChange", this.moveContent);
     EventBus.$on("pageSectionChange", this.movePageSection);
     EventBus.$on("newContentSectionDropOnContent", this.addNewContent);
+    EventBus.$on("modifyPageData", this.savePreview);
 
     const d = new Date(0).toISOString();
     if (this.savedContent.dateAdded !== d) {
       this.importSavedData();
+      this.localStoreName = `preview_${this.savedContent.id}`;
+    } else {
+      this.localStoreName = `preview_${uuidv4()}`;
     }
+
+    this.savePreview();
   },
   beforeDestroy() {
     EventBus.$off("contentSectionChange");
     EventBus.$off("pageSectionChange");
     EventBus.$off("newContentSectionDropOnContent");
+    EventBus.$off("modifyPageData");
+
+    localStorage.removeItem(this.localStoreName);
   },
   methods: {
     addNewPageSection() {
       this.pageContainer.addNewPageSection();
+      this.savePreview();
     },
     deletePageSection(ev) {
       this.pageContainer.deletePageSectionById(ev.id);
+      this.savePreview();
     },
     moveContent(ev) {
       const movedContentParent = this.pageContainer.getPageSectionById(ev.droppedContentParentId);
@@ -151,11 +169,14 @@ export default {
       } else {
         droppedOnContentParent.insertContentSectionBeforeId(ev.droppedOverContent, content);
       }
+
+      this.savePreview();
     },
     addNewContent(ev) {
       const parentPage = this.pageContainer.getPageSectionById(ev.dropTargetParent);
       const after = ev.hoverProportion > 0.5;
       parentPage.addNewContentSection(ev.type, ev.dropTarget, after);
+      this.savePreview();
     },
     movePageSection(ev) {
       const droppedSection = this.pageContainer.getPageSectionById(ev.droppedSection);
@@ -167,6 +188,7 @@ export default {
       } else if (ev.hoverProportion <= 0.5) {
         this.pageContainer.insertPageSectionBeforeId(ev.targetSection, droppedSection);
       }
+      this.savePreview();
     },
     importFromJSON() {
       const newPageContainer = new PageContainer();
@@ -179,6 +201,8 @@ export default {
       }
 
       this.pageContainer = newPageContainer;
+
+      this.savePreview();
     },
     saveToServer() {
       const exportedContent = this.pageContainer.exportToJSON();
@@ -231,6 +255,8 @@ export default {
 
       const { meta } = sc;
 
+      this.pageId = this.savedContent.id;
+
       if (isObject(meta)) {
         if (!isUndefined(meta.containerClasses)) {
           this.containerClasses = meta.containerClasses;
@@ -240,6 +266,26 @@ export default {
           this.pageTitle = meta.title;
         }
       }
+    },
+    savePreview() {
+      if (this.pageContainer) {
+        localStorage.setItem(this.localStoreName, JSON.stringify({
+          pageSlug: this.pageSlug,
+          pageTitle: this.pageTitle,
+          pageName: this.pageName,
+          containerClasses: this.containerClasses,
+          pageContent: this.pageContainer.exportToJSON(),
+        }));
+
+        console.log("Saved Preview Data", this.localStoreName);
+      }
+    },
+    showPreview() {
+      this.previewOpen = true;
+      console.log(this.exportedPageData);
+    },
+    hidePreview() {
+      this.previewOpen = false;
     },
   },
 };

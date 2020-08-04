@@ -111,6 +111,8 @@ export default {
   methods: {
     deleteContentSection(ev) {
       this.section.deleteContentSection(ev.id);
+
+      EventBus.$emit("modifyPageData");
     },
     deletePageSection() {
       this.$emit("deletePageSection", {
@@ -133,6 +135,7 @@ export default {
       this.section.setClasses(ev.classes);
 
       this.closeEditor();
+      EventBus.$emit("modifyPageData");
     },
     onDrop(ev) {
       ev.preventDefault();
@@ -226,6 +229,7 @@ export default {
       const { type } = this.newContentDragEvent;
 
       this.section.addNewContentSection(type);
+      EventBus.$emit("modifyPageData");
     },
     pageDrag(ev) {
       if (this.section.id === this.pageDragEvent.draggedSection) {

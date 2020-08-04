@@ -157,9 +157,11 @@ export default {
   methods: {
     growSection() {
       this.contentSection.increaseSize();
+      EventBus.$emit("modifyPageData");
     },
     shrinkSection() {
       this.contentSection.decreaseSize();
+      EventBus.$emit("modifyPageData");
     },
     deleteSection() {
       this.$emit("deleteContentSection", {
@@ -288,6 +290,8 @@ export default {
       this.contentSection.setContent(ev.content);
 
       this.closeEditor();
+
+      EventBus.$emit("modifyPageData");
     },
   },
 };

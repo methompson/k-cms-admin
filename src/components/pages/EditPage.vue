@@ -1,6 +1,6 @@
 <template>
   <div>
-    <PageOrganizer
+    <PageBuilder
       v-if="savedContent"
       :savedContent="savedContent"
       @saveToServer="editPage"/>
@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import PageOrganizer from "@/components/components/page-builder/PageOrganizer.vue";
+import PageBuilder from "@/components/components/page-builder/PageBuilder.vue";
 
 export default {
   components: {
-    PageOrganizer,
+    PageBuilder,
   },
   data() {
     return {
