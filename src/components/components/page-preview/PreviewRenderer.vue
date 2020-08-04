@@ -62,8 +62,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .pageSection {};
-
   .contentSection {
     display: inline-block;
   }
