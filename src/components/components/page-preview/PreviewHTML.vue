@@ -1,5 +1,7 @@
 <template>
-  <div>{{ sectionData.content }}</div>
+  <div>
+    <span v-html="sectionData.content" />
+  </div>
 </template>
 
 <script>

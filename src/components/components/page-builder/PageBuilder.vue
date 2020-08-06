@@ -1,55 +1,80 @@
 <template>
-  <div class="organizerContainer">
-    <!-- <div>
-      <textarea v-model="jsonInput" rows="5" cols="33"></textarea>
-    </div>
-    <div>
-      <button type="button" @click="importFromJSON">Import From JSON</button>
-    </div> -->
-
-    <div>
-      Page Title
-      <input type="text" v-model="pageTitle">
-    </div>
-
-    <div>
-      Page Name
-      <input type="text" v-model="pageName">
-    </div>
-
-    <div>
-      Page Slug
-      <input type="text" v-model="pageSlug" @input="pageSlugInput">
-    </div>
-
-    <div>
-      Container Classes
-      <input type="text" v-model="containerClasses">
-    </div>
-
-    <ContentTray />
-
-    <button type="button" @click="addNewPageSection">Add a New Page Section</button>
-
-    <div class="sectionContainer" v-if="pageContainer">
-
-      <PageSectionView
-        v-for="section in pageContainer.pageSections"
-        :key="section.id"
-        :section="section"
-        @deletePageSection="deletePageSection" />
-
-    </div>
-
-    <button type="button" @click="saveToServer">Save</button>
-    <button type="button" @click="showPreview">Show Preview</button>
-
-    <div v-if="errors.length > 0" class="errSection">
-      <div v-for="error in errors" :key="error">
-        {{ error }}
+  <div class="pageBuilder">
+    <div class="builder">
+      <!-- <div>
+        <textarea v-model="jsonInput" rows="5" cols="33"></textarea>
       </div>
-    </div>
+      <div>
+        <button type="button" @click="importFromJSON">Import From JSON</button>
+      </div> -->
 
+      <div>
+        Page Title
+        <input type="text" v-model="pageTitle">
+      </div>
+
+      <div>
+        Page Name
+        <input type="text" v-model="pageName">
+      </div>
+
+      <div>
+        Page Slug
+        <input type="text" v-model="pageSlug" @input="pageSlugInput">
+      </div>
+
+      <div>
+        Container Classes
+        <input type="text" v-model="containerClasses">
+      </div>
+
+      <ContentTray />
+
+      <button type="button" @click="addNewPageSection">Add a New Page Section</button>
+
+      <div class="sectionContainer" v-if="pageContainer">
+
+        <PageSectionView
+          v-for="section in pageContainer.pageSections"
+          :key="section.id"
+          :section="section"
+          @deletePageSection="deletePageSection" />
+
+      </div>
+
+      <div>
+        <button type="button" @click="showPreviewInNewWindow">Show Preview in New Window</button>
+
+        <button
+          v-if="showPreview"
+          type="button"
+          @click="hidePreview">
+          Hide Preview
+        </button>
+
+        <button
+          v-else
+          type="button"
+          @click="showPreviewInline">
+          Show Preview inline
+        </button>
+      </div>
+
+      <button type="button" @click="saveToServer">Save</button>
+
+      <div v-if="errors.length > 0" class="errSection">
+        <div v-for="error in errors" :key="error">
+          {{ error }}
+        </div>
+      </div>
+
+    </div>
+    <div
+      class="preview"
+      v-if="showPreview" >
+      <PreviewRenderer
+        :pageData="exportedPageData" />
+    </div>
   </div>
 </template>
 
@@ -61,6 +86,7 @@ import EventBus from "@/shared/event-bus";
 import { checkSlug, slugify } from "@/shared/slug";
 import { isObject, isUndefined } from "@/shared/is-data";
 
+import PreviewRenderer from "@/components/components/page-preview/PreviewRenderer.vue";
 import PageSectionView from "./PageSectionView.vue";
 import ContentTray from "./ContentTray.vue";
 
@@ -68,6 +94,7 @@ export default {
   components: {
     PageSectionView,
     ContentTray,
+    PreviewRenderer,
   },
   props: {
     savedContent: {
@@ -98,9 +125,10 @@ export default {
       containerClasses: "",
       errors: [],
       manuallyChanged: false,
-      previewOpen: false,
-      exportedPageData: null,
+      exportedPageData: {},
       localStoreName: "",
+      previewId: "",
+      showPreview: false,
     };
   },
   watch: {
@@ -125,10 +153,12 @@ export default {
     const d = new Date(0).toISOString();
     if (this.savedContent.dateAdded !== d) {
       this.importSavedData();
-      this.localStoreName = `preview_${this.savedContent.id}`;
+      this.previewId = this.savedContent.id;
     } else {
-      this.localStoreName = `preview_${uuidv4()}`;
+      this.previewId = uuidv4();
     }
+
+    this.localStoreName = `preview_${this.previewId}`;
 
     this.savePreview();
   },
@@ -269,29 +299,57 @@ export default {
     },
     savePreview() {
       if (this.pageContainer) {
-        localStorage.setItem(this.localStoreName, JSON.stringify({
+        this.exportedPageData = {
           pageSlug: this.pageSlug,
           pageTitle: this.pageTitle,
           pageName: this.pageName,
           containerClasses: this.containerClasses,
           pageContent: this.pageContainer.exportToJSON(),
-        }));
+        };
+
+        localStorage.setItem(this.localStoreName, JSON.stringify(this.exportedPageData));
 
         console.log("Saved Preview Data", this.localStoreName);
       }
     },
-    showPreview() {
-      this.previewOpen = true;
+    showPreviewInNewWindow() {
+      const loc = window.location;
+      const url = `${loc.protocol}//${loc.hostname}:${loc.port}/page-preview/${this.previewId}`;
+      window.open(url, "previewWindow", "top=200, left=200");
       console.log(this.exportedPageData);
     },
+    showPreviewInline() {
+      this.showPreview = true;
+    },
     hidePreview() {
-      this.previewOpen = false;
+      this.showPreview = false;
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+  .builder,
+  .preview {
+    padding: 0.25em;
+    width: 50%;
+  }
+
+  $border-color: #aaa;
+
+  .builder {
+    flex-grow: 2;
+    border-right: 1px solid $border-color;
+  }
+
+  .preview {
+    border-left: 1px solid $border-color;
+  }
+
+  .pageBuilder {
+    display: flex;
+  }
+
   .sectionContainer {
     text-align: left;
     width: 100%;

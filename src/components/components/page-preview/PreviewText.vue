@@ -1,5 +1,7 @@
 <template>
-  <div>{{ sectionData.content }}</div>
+  <div class="textComponent">
+    {{ sectionData.content }}
+  </div>
 </template>
 
 <script>
@@ -18,5 +20,4 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 </style>

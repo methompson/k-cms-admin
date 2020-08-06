@@ -404,6 +404,7 @@ export default {
   .width_1_3 { width: calc(100% / 3); }
   .width_1_2 { width: calc(100% / 2); }
   .width_2_3 { width: calc(100% * (2 / 3)); }
+  .width_3_5 { width: calc(100% * (3 / 5)); }
   .width_3_4 { width: calc(100% * (3 / 4)); }
   .width_5_6 { width: calc(100% * (5 / 6)); }
   .width_1_1 { width: calc(100%); }

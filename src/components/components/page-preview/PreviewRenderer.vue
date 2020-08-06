@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <div
+    class="pageContainer">
     <div
       v-for="(content, index) in pageData.pageContent"
       :key="index"
@@ -48,6 +49,7 @@ export default {
         "1/3": "width_1_3",
         "1/2": "width_1_2",
         "2/3": "width_2_3",
+        "3/5": "width_3_5",
         "3/4": "width_3_4",
         "5/6": "width_5_6",
         "1/1": "width_1_1",
@@ -62,6 +64,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .pageContainer {
+    border: 1px solid black;
+  }
+
+  .pageSection {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    text-align: center;
+  }
+
   .contentSection {
     display: inline-block;
   }
@@ -74,6 +87,7 @@ export default {
   .width_1_3 { width: calc(100% / 3); }
   .width_1_2 { width: calc(100% / 2); }
   .width_2_3 { width: calc(100% * (2 / 3)); }
+  .width_3_5 { width: calc(100% * (3 / 5)); }
   .width_3_4 { width: calc(100% * (3 / 4)); }
   .width_5_6 { width: calc(100% * (5 / 6)); }
   .width_1_1 { width: calc(100%); }
