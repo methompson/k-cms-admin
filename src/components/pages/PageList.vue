@@ -12,7 +12,8 @@
 
       <div v-for="page in pageList" :key="page.id">
         <PageListItem
-          :page="page"/>
+          :page="page"
+          @deletePage="deletePage"/>
       </div>
     </LoadingContainer>
 
@@ -73,6 +74,9 @@ export default {
         .finally(() => {
           this.finishedLoading = true;
         });
+    },
+    deletePage() {
+      this.getPageList();
     },
   },
 };

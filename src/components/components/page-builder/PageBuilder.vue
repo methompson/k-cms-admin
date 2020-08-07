@@ -254,6 +254,7 @@ export default {
 
       if (errors.length === 0) {
         this.$emit("saveToServer", {
+          id: this.savedContent.id,
           pageSlug: this.pageSlug,
           pageTitle: this.pageTitle,
           pageName: this.pageName,

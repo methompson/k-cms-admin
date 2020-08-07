@@ -57,3 +57,32 @@ body {
 .ghost {
   opacity: 0.2;
 }
+
+$linkColor: blue;
+
+a,
+.fakeLink {
+  color: $linkColor;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+a:visited {
+  color: $linkColor;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+a:hover,
+.fakeLink:hover {
+  color: $linkColor;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+a:active,
+.fakeLink:active {
+  color: $linkColor;
+  cursor: pointer;
+  text-decoration: underline;
+}

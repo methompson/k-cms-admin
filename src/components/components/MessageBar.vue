@@ -121,7 +121,7 @@ export default {
   }
 
   .success {
-    background-color: lime;
+    background-color: rgb(0, 180, 0);
   }
 
   .info {
