@@ -1,10 +1,12 @@
 <template>
   <div class="textComponent">
-    {{ sectionData.content }}
+    <span v-html="renderedContent" />
   </div>
 </template>
 
 <script>
+import marked from "marked";
+
 export default {
   props: {
     sectionData: {
@@ -14,6 +16,11 @@ export default {
           content: "",
         };
       },
+    },
+  },
+  computed: {
+    renderedContent() {
+      return marked(this.sectionData.content);
     },
   },
 };

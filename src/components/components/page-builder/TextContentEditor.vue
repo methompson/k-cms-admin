@@ -14,7 +14,7 @@
       <div>
         <label>Text Content</label>
       </div>
-      <textarea rows="5" cols="33" v-model="content"/>
+      <textarea id="content" rows="5" cols="33" />
     </div>
 
     <button type="button" @click="cancel">Cancel</button>
@@ -23,7 +23,10 @@
 </template>
 
 <script>
+import SimpleMDE from "simplemde";
+
 import TextContentSection from "@/shared/page-creator/TextContentSection";
+import { isObject } from "@/shared/is-data";
 
 import EditorModal from "./EditorModal.vue";
 
@@ -43,13 +46,23 @@ export default {
     return {
       name: "",
       classes: "",
-      content: "",
+      mde: null,
     };
   },
   mounted() {
     this.name = this.contentSection.contentMeta.name;
     this.classes = this.contentSection.contentMeta.classes;
     this.content = this.contentSection.content;
+
+    const contentTextArea = document.getElementById("content");
+
+    if (contentTextArea) {
+      this.mde = new SimpleMDE({
+        element: contentTextArea,
+      });
+
+      this.mde.value(this.contentSection.content);
+    }
   },
   methods: {
     closeEditor() {
@@ -59,10 +72,14 @@ export default {
       this.closeEditor();
     },
     saveData() {
+      const content = isObject(this.mde) ? this.mde.value() : "";
+
+      console.log(content);
+
       this.$emit("saveData", {
         name: this.name,
         classes: this.classes,
-        content: this.content,
+        content,
       });
     },
   },
@@ -70,4 +87,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  // @import "../../../../node_modules/simplemde/dist/simplemde.min.css"
+  @import "~@/../node_modules/simplemde/dist/simplemde.min.css"
 </style>
