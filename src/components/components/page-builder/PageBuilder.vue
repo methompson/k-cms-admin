@@ -28,6 +28,10 @@
         <input type="text" v-model="containerClasses">
       </div>
 
+      <div>
+        <input type="checkbox" v-model="enabled" /> <label>Page Enabled</label>
+      </div>
+
       <ContentTray />
 
       <button type="button" @click="addNewPageSection">Add a New Page Section</button>
@@ -84,7 +88,12 @@ import { v4 as uuidv4 } from 'uuid';
 import PageContainer from "@/shared/page-creator/PageContainer";
 import EventBus from "@/shared/event-bus";
 import { checkSlug, slugify } from "@/shared/slug";
-import { isObject, isUndefined } from "@/shared/is-data";
+import {
+  isObject,
+  isUndefined,
+  isString,
+  isBoolean,
+} from "@/shared/is-data";
 
 import PreviewRenderer from "@/components/components/page-preview/PreviewRenderer.vue";
 import PageSectionView from "./PageSectionView.vue";
@@ -129,6 +138,7 @@ export default {
       localStoreName: "",
       previewId: "",
       showPreview: false,
+      enabled: false,
     };
   },
   watch: {
@@ -260,6 +270,7 @@ export default {
           pageName: this.pageName,
           containerClasses: this.containerClasses,
           pageContent: exportedContent,
+          enabled: this.enabled,
         });
 
         return;
@@ -280,9 +291,11 @@ export default {
       const sc = this.savedContent;
 
       this.pageContainer.importSavedData(sc.content);
-      this.pageTitle = sc.title;
-      this.pageName = sc.name;
-      this.pageSlug = sc.slug;
+
+      this.pageTitle = isString(sc.title) ? sc.title : "";
+      this.pageName = isString(sc.name) ? sc.name : "";
+      this.pageSlug = isString(sc.slug) ? sc.slug : "";
+      this.enabled = isBoolean(sc.enabled) ? sc.enabled : false;
 
       const { meta } = sc;
 

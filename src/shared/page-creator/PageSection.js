@@ -1,6 +1,9 @@
+/**
+ * The PageSection
+ */
 import { v4 as uuidv4 } from 'uuid';
 
-import { isUndefined, isString } from "@/shared/is-data";
+import { isUndefined, isString, isObject } from "@/shared/is-data";
 
 import ContentSection from "./ContentSection";
 import HTMLContentSection from "./HTMLContentSection";
@@ -93,6 +96,28 @@ class PageSection {
     });
   }
 
+  duplicateContentSection(id) {
+    const srcSection = this.contentSections.find((el) => {
+      return el.id === id;
+    });
+
+    if (!isObject(srcSection)) {
+      return;
+    }
+
+    const data = JSON.parse(
+      JSON.stringify(
+        srcSection.exportForJSON(),
+      ),
+    );
+
+    const parsedSection = this.importContentSection(data);
+
+    console.log(parsedSection);
+
+    this.insertContentSectionAfterId(id, parsedSection);
+  }
+
   // Inserts a ContentSection object after a ContentSection object that exists in the contentSections array
   insertContentSectionAfterId(id, contentSection) {
     const index = this.getSectionId(id);
@@ -128,24 +153,33 @@ class PageSection {
     };
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  importContentSection(section) {
+    // console.log(el);
+    let sec;
+
+    if (section.type === "image") {
+      sec = new ImageContentSection();
+    }
+    if (section.type === "text") {
+      sec = new TextContentSection();
+    }
+    if (section.type === "html") {
+      sec = new HTMLContentSection();
+    }
+
+    sec.setSize(section.width);
+    sec.content = section.content;
+    sec.contentMeta = section.contentMeta;
+    sec.setName(section.name);
+
+    return sec;
+  }
+
   importContentSections(sections) {
     sections.forEach((el) => {
-      console.log(el);
-      let sec;
-      if (el.type === "image") {
-        sec = new ImageContentSection();
-      }
-      if (el.type === "text") {
-        sec = new TextContentSection();
-      }
-      if (el.type === "html") {
-        sec = new HTMLContentSection();
-      }
-
-      sec.setSize(el.width);
-      sec.content = el.content;
-      sec.contentMeta = el.contentMeta;
-      sec.setName(el.name);
+      // console.log(el);
+      const sec = this.importContentSection(el);
 
       this.addContentSection(sec);
     });

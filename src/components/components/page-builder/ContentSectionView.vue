@@ -14,18 +14,29 @@
           :class="coverClass"
           @drop="onDrop"/>
 
-        <span @click="shrinkSection" class="shrinkBtn">-</span>
-        <span @click="growSection" class="growBtn">+</span>
-        <span @click="showContentEditor" class="editBtn fas">&#xf044;</span>
+        <div class="buttonCenter shrinkBtn">
+          <span @click="shrinkSection" class="topBarBtn fas">&#xf068;</span>
+        </div>
+        <div class="buttonCenter growBtn">
+          <span @click="growSection" class="topBarBtn fas">&#xf067;</span>
+        </div>
+        <div class="buttonCenter editBtn">
+          <span @click="showContentEditor" class="topBarBtn fas">&#xf044;</span>
+        </div>
+        <div class="buttonCenter dupeBtn">
+          <span @click="duplicate" class="topBarBtn fas">&#xf24d;</span>
+        </div>
 
-        <span
-          class="titleBar"
+        <div
+          class="titleCenter"
           @mousedown="onMouseDown"
           @mouseup="onMouseUp">
-            {{ this.contentSection.width.name }}
-        </span>
+          <span class="titleBar">{{ this.contentSection.width.name }}</span>
+        </div>
 
-        <span @click="deleteSection" class="closeBtn fas">&#xf057;</span>
+        <div class="buttonCenter closeBtn">
+          <span @click="deleteSection" class="topBarBtn fas">&#xf057;</span>
+        </div>
 
         <span class="content">
           <!-- Section {{ this.contentSection.id }} -->
@@ -168,6 +179,12 @@ export default {
         id: this.contentSection.id,
       });
     },
+    duplicate() {
+      console.log(this.contentSection.id);
+      this.$emit("duplicateContent", {
+        id: this.contentSection.id,
+      });
+    },
     onMouseDown() {
       // TODO listen for left mouse click only
       this.draggable = true;
@@ -298,6 +315,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  @import "@/common.scss";
+
   .pageSection {
     border: 0;
     display: inline-block;
@@ -307,8 +326,6 @@ export default {
   }
 
   .cover {
-    background-color: lime;
-    // background-color: transparent;
     top: 0;
     left: 0;
     z-index: 999;
@@ -330,9 +347,9 @@ export default {
   .outerBounds {
     display: flex;
     padding: 0;
-    background-color: yellow;
+    background-color: white;
     margin: 0.25em;
-    border: 2px solid black;
+    border: 2px solid #555;
   }
 
   .selectionLeft {
@@ -345,25 +362,38 @@ export default {
   .container {
     display: grid;
     width: 100%;
-    grid-template-columns: [minus-button] 2em [plus-button] 2em [edit-button] 2em [title-bar] auto [close-button] 2em [end];
+    grid-template-columns: [minus-button] 2em [plus-button] 2em [edit-button] 2em [dupe-button] 2em [title-bar] auto [close-button] 2em [end];
     grid-template-rows: [top-bar] auto [content] auto [end];
   }
 
-  .growBtn,
-  .shrinkBtn,
-  .editBtn,
-  .titleBar,
-  .closeBtn {
-    background-color: teal;
-    text-align: center;
-    width: 100%;
+  .topBarBtn,
+  .titleBar {
     font-size: 1.25em;
     font-weight: 700;
-    grid-row-start: top-bar;
+    user-select: none;
+  }
+
+  .buttonCenter {
+    background-color: #ddd;
     grid-row-end: content;
     justify-self: center;
-    align-self: center;
-    user-select: none;
+    align-self: stretch;
+    padding: 0.25em 0;
+  }
+
+  .titleCenter {
+    grid-column-start: title-bar;
+    background-color: #bbb;
+  }
+
+  .buttonCenter,
+  .titleCenter {
+    border-bottom: 1px solid #555;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    grid-row-start: top-bar;
   }
 
   .shrinkBtn {
@@ -378,10 +408,8 @@ export default {
     grid-column-start: edit-button;
   }
 
-  .titleBar {
-    width: 100%;
-    background-color: red;
-    grid-column-start: title-bar;
+  .dupeBtn {
+    grid-column-start: dupe-button;
   }
 
   .closeBtn {
@@ -395,18 +423,4 @@ export default {
     grid-row-end: end;
     padding: 0 0.25em 0.25em;
   }
-
-  .width_1_16 { width: calc(100% / 16); }
-  .width_1_8 { width: calc(100% / 8); }
-  .width_1_6 { width: calc(100% / 6); }
-  .width_1_5 { width: calc(100% / 5); }
-  .width_1_4 { width: calc(100% / 4); }
-  .width_1_3 { width: calc(100% / 3); }
-  .width_1_2 { width: calc(100% / 2); }
-  .width_2_3 { width: calc(100% * (2 / 3)); }
-  .width_3_5 { width: calc(100% * (3 / 5)); }
-  .width_3_4 { width: calc(100% * (3 / 4)); }
-  .width_5_6 { width: calc(100% * (5 / 6)); }
-  .width_1_1 { width: calc(100%); }
-
 </style>

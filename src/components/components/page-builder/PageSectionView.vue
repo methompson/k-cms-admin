@@ -14,14 +14,21 @@
       @dragstart="onDragStart">
 
       <div class="topBar">
-        <span @click="deletePageSection" class="delBtn fas">&#xf057;</span>
-        <span @click="showPageSectionEditor" class="editBtn fas">&#xf044;</span>
-        <span
-          class="title"
+
+        <div class="buttonCenter delBtn">
+          <span @click="deletePageSection" class="fas">&#xf057;</span>
+        </div>
+
+        <div class="buttonCenter editBtn">
+          <span @click="showPageSectionEditor" class="fas">&#xf044;</span>
+        </div>
+
+        <div
+          class="titleCenter title"
           @mousedown="onMouseDown"
           @mouseup="onMouseUp">
-          <span>Name: {{ section.meta.name }}</span>
-        </span>
+            <span>Name: {{ section.meta.name }}</span>
+        </div>
       </div>
 
       <div>id: {{ section.id }}</div>
@@ -32,7 +39,8 @@
           :key="contentSection.id"
           :contentSection="contentSection"
           :parentContainer="section.id"
-          @deleteContentSection="deleteContentSection" />
+          @deleteContentSection="deleteContentSection"
+          @duplicateContent="duplicateContentSection" />
       </div>
 
     </span>
@@ -111,6 +119,11 @@ export default {
   methods: {
     deleteContentSection(ev) {
       this.section.deleteContentSection(ev.id);
+
+      EventBus.$emit("modifyPageData");
+    },
+    duplicateContentSection(ev) {
+      this.section.duplicateContentSection(ev.id);
 
       EventBus.$emit("modifyPageData");
     },
@@ -251,8 +264,8 @@ export default {
 <style lang="scss" scoped>
   .sectionHolder {
     width: calc(100% - 4px);
-    background-color: #eeeeee;
-    border: 2px solid black;
+    background-color: white;
+    border: 2px solid #555;
     margin: 1em 0;
     position: relative;
   }
@@ -285,6 +298,8 @@ export default {
     grid-template-columns: [edit-button] 2em [title-bar] auto [del-button] 2em [end];
     grid-template-rows: [start] auto [end];
     align-items: center;
+    border-bottom: 1px solid #555;
+    user-select: none;
   }
 
   .delBtn, .editBtn {
@@ -292,20 +307,35 @@ export default {
     width: 100%;
   }
 
-  .delBtn {
-    background-color: teal;
-    grid-column-start: del-button;
+  .buttonCenter,
+  .titleCenter {
     grid-row-start: start;
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    font-size: 1.25em;
+    font-weight: 700;
+  }
+
+  .titleCenter {
+    background-color: #bbb;
+    justify-content: flex-start;
+    padding-left: 0.5em;
+  }
+
+  .buttonCenter {
+    background-color: #ddd;
+    justify-content: center;
+  }
+
+  .delBtn {
+    grid-column-start: del-button;
   }
   .editBtn {
-    background-color: red;
     grid-column-start: edit-button;
-    grid-row-start: start;
   }
   .title {
-    background-color: lime;
     grid-column-start: title-bar;
-    grid-row-start: start;
   }
 
 </style>

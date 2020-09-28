@@ -30,7 +30,7 @@ export default {
         page: {
           slug: ev.pageSlug,
           name: ev.pageName,
-          enabled: true,
+          enabled: ev.enabled,
           content: ev.pageContent,
           meta: {
             title: ev.pageTitle,

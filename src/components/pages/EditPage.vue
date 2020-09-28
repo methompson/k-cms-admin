@@ -74,7 +74,7 @@ export default {
           id: ev.id,
           slug: ev.pageSlug,
           name: ev.pageName,
-          enabled: true,
+          enabled: ev.enabled,
           content: ev.pageContent,
           meta: {
             title: ev.pageTitle,
@@ -107,7 +107,7 @@ export default {
           // Show Success Message
           this.$store.dispatch("addMessage", {
             msg: `${ev.pageName} Has Been Edited`,
-            type: "info",
+            type: "success",
             timeout: 15,
           });
         })

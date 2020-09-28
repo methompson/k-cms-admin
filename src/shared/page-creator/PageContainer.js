@@ -1,3 +1,10 @@
+/**
+ * PageContainer
+ *
+ * The PageContainer class is a class that organizes and defines various portions of the page, as a whole.
+ * Its purpose is to organize the various parts of the Page, including Page Sections and meta information
+ * about the page.
+ */
 import { isObject, isArray, isString } from "@/shared/is-data";
 
 import PageSection from "./PageSection";
