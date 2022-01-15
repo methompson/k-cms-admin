@@ -10,7 +10,7 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "jsonwebtoken": "^8.5.1",
-    "marked": "^1.1.1",
+    "marked": "^4.0.10",
     "simplemde": "^1.11.2",
     "uuid": "^8.3.0",
     "vue": "^2.6.11",
